@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Fading Polaroid</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Averia+Serif+Libre:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#f7efe4;
+    --paper:#fdf9f2;
+    --ink:#4a3c33;
+    --soft:#8c7b6e;
+    --accent:#d97b66;
+    --accent-soft:#f1c4b4;
+    --serif:"Averia Serif Libre",Georgia,serif;
+    --sans:"Geist",system-ui,sans-serif;
+    --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .33 0 0 0 0 .26 0 0 0 .6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{background:var(--cream)}
+  body{
+    font-family:var(--sans);color:var(--ink);min-height:100vh;position:relative;overflow-x:hidden;
+    background:
+      radial-gradient(60% 50% at 8% 6%, #f9d7c4 0%, transparent 60%),
+      radial-gradient(50% 45% at 92% 12%, #e6dcf2 0%, transparent 62%),
+      radial-gradient(55% 50% at 80% 70%, #f6e3c3 0%, transparent 60%),
+      radial-gradient(60% 55% at 10% 85%, #dcebe2 0%, transparent 62%),
+      var(--cream);
+    -webkit-font-smoothing:antialiased;
+  }
+  /* soft film grain over everything */
+  body::before{
+    content:"";position:fixed;inset:-50%;pointer-events:none;z-index:50;opacity:.28;mix-blend-mode:multiply;
+    background-image:var(--grain);
+  }
+  /* slow drifting light leak */
+  body::after{
+    content:"";position:absolute;left:0;right:0;top:0;height:1200px;pointer-events:none;z-index:0;
+    background:radial-gradient(40% 35% at 70% 30%, rgba(255,214,186,.45), transparent 70%);
+    filter:blur(30px);animation:drift 18s ease-in-out infinite alternate;
+  }
+  @keyframes drift{from{transform:translate(-8%,-4%)}to{transform:translate(6%,8%)}}
+  .wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:64px 28px 90px}
+
+  /* hero */
+  header{display:grid;grid-template-columns:1.25fr 1fr;gap:48px;align-items:end;margin-bottom:44px}
+  .eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--soft);margin-bottom:18px;display:flex;gap:10px;align-items:center;font-weight:500}
+  .eyebrow i{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 5px rgba(217,123,102,.18);display:inline-block}
+  h1{font-family:var(--serif);font-weight:300;font-size:clamp(56px,8.4vw,108px);line-height:.92;letter-spacing:-.02em;color:#3f322a}
+  h1 em{font-style:italic;font-weight:400;color:var(--accent)}
+  .lede{font-family:var(--serif);font-weight:300;font-size:clamp(20px,2.2vw,25px);line-height:1.38;color:#5a4a3f}
+  .lede small{display:block;margin-top:16px;font-family:var(--sans);font-size:13.5px;color:var(--soft);line-height:1.55;font-weight:400}
+
+  /* time control */
+  .timebar{
+    position:sticky;top:16px;z-index:20;
+    display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+    background:linear-gradient(135deg,rgba(255,250,244,.78),rgba(250,238,228,.66));
+    backdrop-filter:blur(16px) saturate(1.1);-webkit-backdrop-filter:blur(16px) saturate(1.1);
+    border:1px solid rgba(255,255,255,.7);border-radius:26px;padding:16px 22px;margin-bottom:56px;
+    box-shadow:0 1px 0 rgba(255,255,255,.8) inset,0 20px 40px -24px rgba(120,80,50,.35);
+  }
+  .timebar .label{font-family:var(--serif);font-style:italic;font-weight:300;font-size:24px;line-height:1;min-width:180px;color:#4a3c33}
+  .timebar .label b{color:var(--accent);font-weight:700;font-style:normal}
+  .slider{flex:1;min-width:200px}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:28px;background:transparent;cursor:pointer;outline:none}
+  input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:6px;background:linear-gradient(90deg,#e79a83,#efc28f 35%,#c9bfb4 75%,#d8d1c9)}
+  input[type=range]::-moz-range-track{height:6px;border-radius:6px;background:linear-gradient(90deg,#e79a83,#efc28f 35%,#c9bfb4 75%,#d8d1c9)}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;margin-top:-9px;border-radius:50%;background:var(--paper);border:1px solid rgba(74,60,51,.18);box-shadow:0 4px 12px -2px rgba(120,80,50,.35),0 0 0 4px rgba(255,255,255,.6)}
+  input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--paper);border:1px solid rgba(74,60,51,.18);box-shadow:0 4px 12px -2px rgba(120,80,50,.35)}
+  input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 5px rgba(217,123,102,.28)}
+  .ticks{display:flex;justify-content:space-between;font-size:10.5px;color:var(--soft);padding:0 4px;letter-spacing:.08em;font-weight:500}
+  .btn{
+    font:500 13.5px var(--sans);border-radius:999px;padding:11px 18px;cursor:pointer;
+    border:1px solid transparent;color:#fffaf4;
+    background:linear-gradient(135deg,#df8a72,#c96f5b);
+    box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 10px 20px -10px rgba(201,111,91,.7);
+    transition:transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s;
+    display:inline-flex;align-items:center;gap:8px;white-space:nowrap
+  }
+  .btn:hover{transform:translateY(-1px);box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 14px 24px -10px rgba(201,111,91,.75)}
+  .btn:active{transform:translateY(1px) scale(.98)}
+  .btn.ghost{background:rgba(255,255,255,.55);color:var(--ink);border-color:rgba(74,60,51,.12);box-shadow:none}
+  .summary{font-size:13px;color:var(--soft);width:100%;display:flex;gap:6px;align-items:center}
+  .dots{display:inline-flex;gap:5px;margin-left:6px}
+  .dots span{width:9px;height:9px;border-radius:50%;background:#d6cec5;transition:background .8s, box-shadow .8s}
+  .dots span.on{background:var(--accent);box-shadow:0 0 0 3px rgba(217,123,102,.18)}
+
+  /* the wall */
+  .wall{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:64px 44px;padding:10px 6px 30px}
+  .card{
+    --fade:0;
+    position:relative;
+    background:
+      linear-gradient(170deg, rgba(255,255,255,.7), rgba(255,255,255,0) 40%),
+      color-mix(in srgb,#fffaf3,#eadcc4 calc(var(--fade)*100%));
+    padding:14px 14px 0;
+    border-radius:6px;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.9) inset,
+      0 28px 44px -26px rgba(110,72,44,.45),
+      0 6px 14px -6px rgba(110,72,44,.16);
+    transform:rotate(var(--rot)) translateY(calc(var(--fade)*6px));
+    transition:transform .8s cubic-bezier(.2,.8,.2,1), background 1.4s ease, box-shadow .5s;
+  }
+  /* paper texture on the card */
+  .card::after{content:"";position:absolute;inset:0;border-radius:6px;pointer-events:none;background-image:var(--grain);opacity:.35;mix-blend-mode:multiply}
+  .card:hover{transform:rotate(0deg) translateY(-8px) scale(1.02);z-index:5;
+    box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 40px 56px -28px rgba(110,72,44,.5),0 6px 14px -6px rgba(110,72,44,.16)}
+  /* washi tape */
+  .card::before{
+    content:"";position:absolute;top:-13px;left:50%;width:92px;height:26px;z-index:3;
+    transform:translateX(-50%) rotate(calc(var(--rot) * -1.4));
+    background:linear-gradient(90deg,rgba(255,255,255,.25),transparent 30%,rgba(255,255,255,.2)),var(--tape);
+    opacity:calc(.7 - var(--fade)*.22);filter:grayscale(var(--fade));border-radius:2px;
+    -webkit-mask:linear-gradient(90deg,transparent 0 2px,#000 2px calc(100% - 2px),transparent 0),
+                 repeating-linear-gradient(0deg,#000 0 3px,transparent 3px 4px);
+    transition:opacity 1.4s, filter 1.4s;
+  }
+  .photo{position:relative;aspect-ratio:1/1;overflow:hidden;background:#d9cfc4;border-radius:3px;
+    box-shadow:0 0 0 1px rgba(74,60,51,.06) inset}
+  .photo svg{display:block;width:100%;height:100%}
+  .photo .base{
+    filter:
+      saturate(calc(.86 - var(--fade)*.86))
+      sepia(calc(.08 + var(--fade)*.22))
+      contrast(calc(.95 - var(--fade)*.2))
+      brightness(calc(1.03 + var(--fade)*.12))
+      blur(calc(var(--fade)*.5px));
+    transition:filter 1.6s ease;
+  }
+  /* film softness: grain + warm light leak + vignette, layered over the print */
+  .photo::before{
+    content:"";position:absolute;inset:0;pointer-events:none;z-index:2;
+    background-image:var(--grain);opacity:.55;mix-blend-mode:overlay;
+  }
+  .photo::after{
+    content:"";position:absolute;inset:0;pointer-events:none;z-index:2;
+    background:
+      radial-gradient(70% 55% at 88% 8%, rgba(255,190,150,.45), transparent 60%),
+      radial-gradient(90% 70% at 20% 15%, rgba(255,255,255,.18), transparent 55%),
+      radial-gradient(130% 120% at 50% 50%, transparent 58%, rgba(70,40,25,.32));
+    mix-blend-mode:soft-light;
+  }
+  .flood{position:absolute;inset:0;clip-path:circle(0% at 50% 100%);pointer-events:none;z-index:1;filter:saturate(.86) sepia(.08) contrast(.95) brightness(1.03)}
+  .flash{position:absolute;inset:0;background:radial-gradient(circle at 50% 60%,#fffaf2,#ffe9d6);opacity:0;pointer-events:none;z-index:3}
+
+  .meta{position:relative;z-index:2;padding:14px 6px 18px;display:flex;flex-direction:column;gap:2px;min-height:100px}
+  .caption{
+    font-family:var(--serif);font-style:italic;font-weight:400;font-size:21px;line-height:1.2;letter-spacing:-.005em;
+    color:rgb(74 60 51 / calc(1 - var(--fade)*.48));transition:color 1.4s;
+  }
+  .row{display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:10px}
+  .when{font-family:var(--sans);font-size:12.5px;color:var(--soft);letter-spacing:.01em;transition:color .8s}
+  .card.grey .when{color:var(--accent);font-weight:500}
+  .met{
+    font:500 12px var(--sans);letter-spacing:.01em;
+    border:1px solid rgba(74,60,51,.14);background:rgba(255,255,255,.6);color:var(--ink);
+    padding:8px 13px;border-radius:999px;cursor:pointer;transition:all .3s cubic-bezier(.2,.8,.2,1);white-space:nowrap
+  }
+  .met:hover{background:#fff;box-shadow:0 8px 16px -10px rgba(110,72,44,.5);transform:translateY(-1px)}
+  .card.grey .met{border-color:transparent;color:#fffaf4;background:linear-gradient(135deg,#df8a72,#c96f5b);box-shadow:0 8px 16px -8px rgba(201,111,91,.6);animation:breathe 3.2s ease-in-out infinite}
+  @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
+
+  .confetti{position:absolute;width:8px;height:8px;border-radius:2px;pointer-events:none;z-index:6}
+
+  /* notes */
+  .notes-head{margin:84px 0 28px;display:flex;align-items:baseline;gap:18px;flex-wrap:wrap}
+  .notes-head h2{font-family:var(--serif);font-weight:300;font-size:44px;letter-spacing:-.015em;color:#3f322a}
+  .notes-head h2 em{color:var(--accent);font-weight:400}
+  .notes-head p{color:var(--soft);font-size:14px}
+  .notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:28px}
+  .note{
+    font-family:var(--serif);font-weight:300;font-size:19px;line-height:1.4;padding:24px 22px 30px;color:#4a3c33;
+    background:linear-gradient(160deg,rgba(255,255,255,.45),rgba(255,255,255,0) 50%),var(--c);
+    transform:rotate(var(--r));border-radius:4px;position:relative;
+    box-shadow:0 22px 34px -24px rgba(110,72,44,.45),0 2px 6px -2px rgba(110,72,44,.1);
+    transition:transform .5s cubic-bezier(.2,.8,.2,1);
+  }
+  .note:hover{transform:rotate(0) translateY(-4px)}
+  .note::before{content:"";position:absolute;inset:0;border-radius:4px;background-image:var(--grain);opacity:.3;mix-blend-mode:multiply;pointer-events:none}
+  .note b{display:block;font-family:var(--sans);font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;margin-bottom:12px;opacity:.55}
+
+  footer{margin-top:80px;padding-top:24px;border-top:1px solid rgba(74,60,51,.12);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--soft)}
+  footer a{color:var(--ink);text-decoration-color:rgba(74,60,51,.3);text-underline-offset:3px}
+  .toast{
+    position:fixed;left:50%;bottom:28px;transform:translate(-50%,30px);opacity:0;z-index:60;
+    background:rgba(255,250,244,.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    color:var(--ink);font-family:var(--serif);font-style:italic;font-size:19px;padding:12px 22px;border-radius:999px;
+    border:1px solid rgba(255,255,255,.8);box-shadow:0 18px 34px -18px rgba(110,72,44,.5);
+    transition:all .5s cubic-bezier(.2,.8,.2,1);pointer-events:none
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+
+  @media (max-width:760px){
+    header{grid-template-columns:1fr;gap:18px}
+    .wrap{padding:40px 18px 64px}
+    .timebar{top:10px;border-radius:22px}
+    .wall{gap:50px 26px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition-duration:.01s!important;animation:none!important}
+  }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow"><i></i>A concept for getting friends to meet IRL</div>
+      <h1>the <em>fading</em><br>polaroid</h1>
+    </div>
+    <p class="lede">
+      Friend groups don't really break up. They just stop meeting. Nobody fights, nobody leaves the group chat. One day it's been four months.
+      <small>Drag time forward and watch the wall go grey. Then tap “we met up” and see the colour come back.</small>
+    </p>
+  </header>
+
+  <div class="timebar">
+    <div class="label" id="timeLabel">today</div>
+    <div class="slider">
+      <input type="range" id="time" min="0" max="8" step="1" value="0" aria-label="Weeks passing">
+      <div class="ticks"><span>NOW</span><span>2 WK</span><span>4 WK</span><span>6 WK</span><span>8 WK</span></div>
+    </div>
+    <button class="btn" id="play">let 8 weeks pass</button>
+    <button class="btn ghost" id="reset">reset</button>
+    <div class="summary"><span id="summaryText"></span><span class="dots" id="dots"></span></div>
+  </div>
+
+  <section class="wall" id="wall"></section>
+
+  <div class="notes-head">
+    <h2>How I'd <em>test</em> it</h2>
+    <p>Before building anything, I'd check whether people actually behave this way.</p>
+  </div>
+  <section class="notes">
+    <div class="note" style="--c:#f7e7a8;--r:-1.5deg"><b>The human bit</b>Nobody notices a friendship fading. There's no moment, no fight. Just a slowly growing gap.</div>
+    <div class="note" style="--c:#f6d3cb;--r:1.2deg"><b>The idea</b>Every hangout leaves one polaroid. Stop meeting and it goes grey. Meet again and the colour rushes back, with a little buzz in your hand.</div>
+    <div class="note" style="--c:#d6e6ee;--r:-.8deg"><b>Smallest test</b>No app. A shared album for 20 friend groups. I desaturate the photos by hand every week.</div>
+    <div class="note" style="--c:#dcead0;--r:1.6deg"><b>What I'd watch</b>Does anyone text the group “our photo is going grey, let's meet”? If yes, build it.</div>
+  </section>
+
+  <footer>
+    <span>Concept &amp; prototype by Swastik Bose</span>
+    <span><a href="https://www.lensofswastik.me/">lensofswastik.me</a></span>
+  </footer>
+</div>
+<div class="toast" id="toast">colour's back ✦</div>
+
+<script>
+/* ---------- illustrated "photos" ---------- */
+const people = (xs, base, fill, opts = {}) => xs.map((x, i) => {
+  const h = (opts.h && opts.h[i]) || 62;
+  const r = (opts.r && opts.r[i]) || 11;
+  const up = opts.up && opts.up.includes(i);
+  const arms = up
+    ? `<path d="M${x-12} ${base-h+20} L${x-20} ${base-h-12}" stroke="${fill}" stroke-width="7" stroke-linecap="round"/>
+       <path d="M${x+12} ${base-h+20} L${x+20} ${base-h-12}" stroke="${fill}" stroke-width="7" stroke-linecap="round"/>`
+    : '';
+  return `${arms}<rect x="${x-15}" y="${base-h+16}" width="30" height="${h}" rx="14" fill="${fill}"/>
+          <circle cx="${x}" cy="${base-h+4}" r="${r}" fill="${fill}"/>`;
+}).join('');
+
+const rain = () => Array.from({length:38},(_,i)=>{
+  const x=(i*37)%300, y=(i*53)%260;
+  return `<line x1="${x}" y1="${y}" x2="${x-5}" y2="${y+14}" stroke="#fff" stroke-opacity=".35" stroke-width="1.2"/>`;
+}).join('');
+
+const bulbs = (y0, sag, colors, n=11) => Array.from({length:n},(_,i)=>{
+  const t=i/(n-1), x=10+t*280, y=y0+Math.sin(Math.PI*t)*sag;
+  const c=colors[i%colors.length];
+  return `<circle cx="${x}" cy="${y}" r="9" fill="${c}" opacity=".28"/><circle cx="${x}" cy="${y}" r="3.6" fill="${c}"/>`;
+}).join('');
+
+const scenes = [
+  { // chai at 2am
+    caption:"chai at 2am, again", tape:"#efc28f",
+    svg:`<defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#151a38"/><stop offset="1" stop-color="#3e2a49"/></linearGradient>
+         <radialGradient id="l1" cx=".72" cy=".28" r=".55"><stop offset="0" stop-color="#ffd27a" stop-opacity=".95"/><stop offset=".4" stop-color="#ff9a4d" stop-opacity=".35"/><stop offset="1" stop-color="#ff9a4d" stop-opacity="0"/></radialGradient></defs>
+         <rect width="300" height="300" fill="url(#g1)"/>
+         <circle cx="40" cy="40" r="1.4" fill="#fff" opacity=".7"/><circle cx="90" cy="24" r="1" fill="#fff" opacity=".6"/><circle cx="140" cy="58" r="1.2" fill="#fff" opacity=".5"/>
+         <rect width="300" height="300" fill="url(#l1)"/>
+         <rect x="212" y="48" width="4" height="170" fill="#1a1426"/><path d="M200 50 h30 l-6 10 h-18z" fill="#2a2030"/><circle cx="215" cy="64" r="6" fill="#ffe7a8"/>
+         <rect x="150" y="150" width="140" height="82" rx="4" fill="#7a3b2e"/><rect x="150" y="142" width="140" height="12" fill="#c4553c"/>
+         <rect x="166" y="124" width="22" height="22" rx="4" fill="#d9d2c5"/><path d="M174 118 q-6 -10 2 -18 q6 -8 -2 -16" stroke="#fff" stroke-opacity=".5" fill="none" stroke-width="2"/>
+         <rect y="230" width="300" height="70" fill="#231a2b"/>
+         ${people([60,100,138,248],250,"#120e1a",{h:[66,74,60,70]})}
+         <rect x="92" y="196" width="9" height="13" rx="2" fill="#ffb347" opacity=".95"/><rect x="132" y="200" width="9" height="13" rx="2" fill="#ffb347" opacity=".95"/>`
+  },
+  { // rooftop monsoon
+    caption:"rooftop, first rain", tape:"#a9cbd8",
+    svg:`<defs><linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a4c9a"/><stop offset=".6" stop-color="#c9789a"/><stop offset="1" stop-color="#f2a37b"/></linearGradient></defs>
+         <rect width="300" height="300" fill="url(#g2)"/>
+         <path d="M0 190 h40 v-40 h30 v25 h28 v-55 h36 v70 h30 v-30 h40 v45 h26 v-62 h30 v80 h40 v100 H0z" fill="#3a2d5c" opacity=".55"/>
+         <path d="M8 30 Q150 110 292 30" stroke="#2d2240" stroke-width="1.4" fill="none"/>
+         ${bulbs(30,40,["#ffe08a","#ff9fb2","#fff3c4"])}
+         ${rain()}
+         <rect y="232" width="300" height="68" fill="#2c2142"/>
+         ${people([70,118,168,220],252,"#1b1430",{h:[64,70,58,68],up:[2]})}
+         <ellipse cx="150" cy="268" rx="120" ry="6" fill="#fff" opacity=".08"/>`
+  },
+  { // pandal hopping
+    caption:"pandal hopping till 4am", tape:"#e79a83",
+    svg:`<defs><radialGradient id="g3" cx=".5" cy=".42" r=".7"><stop offset="0" stop-color="#ffcf6b"/><stop offset=".35" stop-color="#e2553b"/><stop offset="1" stop-color="#4a0f1c"/></radialGradient></defs>
+         <rect width="300" height="300" fill="url(#g3)"/>
+         <path d="M40 240 V120 Q150 10 260 120 V240" fill="none" stroke="#ffe2a0" stroke-width="3" stroke-dasharray="2 9" stroke-linecap="round"/>
+         <path d="M64 240 V128 Q150 40 236 128 V240" fill="none" stroke="#fff4d4" stroke-width="3" stroke-dasharray="2 8" stroke-linecap="round"/>
+         <path d="M90 240 V140 Q150 74 210 140 V240" fill="#5a1222" opacity=".55"/>
+         <circle cx="150" cy="142" r="22" fill="#ffd27a" opacity=".9"/><circle cx="150" cy="142" r="40" fill="#ffd27a" opacity=".18"/>
+         <rect y="238" width="300" height="62" fill="#2a0912"/>
+         ${people([30,62,96,204,238,272],260,"#2a0912",{h:[56,62,50,60,66,54],r:[10,11,9,11,12,10]})}
+         ${people([126,150,174],268,"#14040a",{h:[72,80,70],up:[1]})}`
+  },
+  { // beach
+    caption:"mandarmani, finally", tape:"#f3dc96",
+    svg:`<defs><linearGradient id="g4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8a6b"/><stop offset=".55" stop-color="#ffc77a"/><stop offset=".56" stop-color="#2f7d96"/><stop offset="1" stop-color="#1d5670"/></linearGradient></defs>
+         <rect width="300" height="300" fill="url(#g4)"/>
+         <circle cx="150" cy="160" r="42" fill="#fff1c7"/><rect x="100" y="165" width="100" height="5" fill="#2f7d96"/>
+         <path d="M0 176 q40 -6 80 0 t80 0 t80 0 t80 0" stroke="#ffd9a6" stroke-opacity=".6" fill="none" stroke-width="2"/>
+         <path d="M0 196 q40 -6 80 0 t80 0 t80 0 t80 0" stroke="#ffd9a6" stroke-opacity=".35" fill="none" stroke-width="2"/>
+         <path d="M0 236 Q150 214 300 236 V300 H0z" fill="#e7b98a"/>
+         ${people([82,128,176,222],256,"#3a2318",{h:[62,70,66,58],up:[0,2]})}
+         <path d="M40 60 q6 -6 12 0 q6 -6 12 0" stroke="#7a3b2e" fill="none" stroke-width="2"/><path d="M220 44 q5 -5 10 0 q5 -5 10 0" stroke="#7a3b2e" fill="none" stroke-width="2"/>`
+  },
+  { // concert
+    caption:"lost our voices", tape:"#cdb3e0",
+    svg:`<rect width="300" height="300" fill="#0d0b1e"/>
+         <polygon points="60,0 90,0 190,300 -40,300" fill="#ff4fa3" opacity=".35"/>
+         <polygon points="210,0 240,0 340,300 110,300" fill="#45d4ff" opacity=".32"/>
+         <polygon points="140,0 160,0 230,300 70,300" fill="#ffe66d" opacity=".22"/>
+         <rect x="0" y="0" width="300" height="34" fill="#16122e"/>
+         ${[30,75,120,165,210,255].map((x,i)=>`<circle cx="${x}" cy="22" r="7" fill="${['#ff4fa3','#45d4ff','#ffe66d'][i%3]}"/>`).join('')}
+         ${people([20,52,84,116,148,180,212,244,276],290,"#06050f",{h:[78,84,72,88,80,86,74,82,76],up:[1,4,7]})}`
+  },
+  { // road trip
+    caption:"the trip that almost didn't happen", tape:"#b7d4ae",
+    svg:`<defs><linearGradient id="g6" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fd0f2"/><stop offset="1" stop-color="#e8f4f0"/></linearGradient></defs>
+         <rect width="300" height="300" fill="url(#g6)"/>
+         <g fill="#fff" opacity=".9"><ellipse cx="70" cy="56" rx="34" ry="12"/><ellipse cx="92" cy="48" rx="22" ry="12"/><ellipse cx="226" cy="80" rx="30" ry="10"/></g>
+         <path d="M0 170 Q70 110 140 160 T300 140 V300 H0z" fill="#6aa86b"/>
+         <path d="M0 200 Q90 160 170 196 T300 186 V300 H0z" fill="#3f8650"/>
+         <path d="M120 300 L150 200 L162 200 L230 300z" fill="#4a4a4f"/><path d="M152 300 L156 200" stroke="#f6e27a" stroke-width="2" stroke-dasharray="8 10"/>
+         <g transform="translate(176 196)"><rect x="0" y="10" width="86" height="30" rx="8" fill="#e2553b"/><path d="M14 10 L26 -8 H62 L74 10z" fill="#e2553b"/><path d="M28 6 L34 -4 H58 L66 6z" fill="#cfe9f5"/><circle cx="18" cy="42" r="9" fill="#222"/><circle cx="68" cy="42" r="9" fill="#222"/></g>
+         ${people([44,82,120],262,"#2b2b33",{h:[62,70,64],up:[1]})}`
+  }
+];
+
+/* ---------- state ---------- */
+const startOffsets = [0, 1, 3, 2, 5, 4]; // weeks since each group last met, at "now"
+let globalWeeks = 0;
+const offsets = [...startOffsets];
+const ROT = [-2.6, 1.8, -1.2, 2.9, -2.1, 1.4];
+
+const wall = document.getElementById('wall');
+const slider = document.getElementById('time');
+const label = document.getElementById('timeLabel');
+const dots = document.getElementById('dots');
+const summaryText = document.getElementById('summaryText');
+
+const svgWrap = s => `<svg viewBox="0 0 300 300" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">${s}</svg>`;
+
+/* each svg needs unique gradient ids for the flood copy */
+const uniq = (s, k) => s.replace(/id="(\w+)"/g, `id="$1_${k}"`).replace(/url\(#(\w+)\)/g, `url(#$1_${k})`);
+
+scenes.forEach((sc, i) => {
+  const card = document.createElement('article');
+  card.className = 'card';
+  card.style.setProperty('--rot', ROT[i] + 'deg');
+  card.style.setProperty('--tape', sc.tape);
+  card.innerHTML = `
+    <div class="photo">
+      <div class="base">${svgWrap(uniq(sc.svg, 'b' + i))}</div>
+      <div class="flood">${svgWrap(uniq(sc.svg, 'f' + i))}</div>
+      <div class="flash"></div>
+    </div>
+    <div class="meta">
+      <div class="caption">${sc.caption}</div>
+      <div class="row"><span class="when"></span><button class="met" aria-label="We met up">we met up ✦</button></div>
+    </div>`;
+  card.querySelector('.met').addEventListener('click', e => meetUp(i, card, e));
+  wall.appendChild(card);
+  dots.insertAdjacentHTML('beforeend', '<span></span>');
+});
+
+const cards = [...wall.children];
+
+function weeksFor(i){ return Math.max(0, offsets[i] + globalWeeks); }
+function fadeFor(w){ return Math.min(1, Math.max(0, (w - 1) / 5)); }
+function whenText(w){
+  if (w === 0) return 'just now';
+  if (w === 1) return 'last week';
+  if (w < 6) return `${w} weeks ago`;
+  if (w < 7) return 'going grey…';
+  return 'call them?';
+}
+
+function render(){
+  let colourful = 0;
+  cards.forEach((card, i) => {
+    const w = weeksFor(i), f = fadeFor(w);
+    card.style.setProperty('--fade', f.toFixed(3));
+    card.querySelector('.when').textContent = whenText(w);
+    card.classList.toggle('grey', f >= .99);
+    const on = f < .6;
+    if (on) colourful++;
+    dots.children[i].classList.toggle('on', on);
+  });
+  label.innerHTML = globalWeeks === 0 ? 'today' : `<b>${globalWeeks}</b> week${globalWeeks > 1 ? 's' : ''} later`;
+  summaryText.textContent = `${colourful} of ${cards.length} memories still in colour`;
+}
+
+slider.addEventListener('input', () => { globalWeeks = +slider.value; stopPlay(); render(); });
+
+let timer = null;
+const playBtn = document.getElementById('play');
+function stopPlay(){ clearInterval(timer); timer = null; playBtn.textContent = 'let 8 weeks pass'; }
+playBtn.addEventListener('click', () => {
+  if (timer) return stopPlay();
+  if (globalWeeks >= 8) { globalWeeks = 0; }
+  playBtn.textContent = 'pause';
+  timer = setInterval(() => {
+    globalWeeks++;
+    slider.value = globalWeeks;
+    render();
+    if (globalWeeks >= 8) stopPlay();
+  }, 650);
+});
+document.getElementById('reset').addEventListener('click', () => {
+  stopPlay(); globalWeeks = 0; slider.value = 0;
+  startOffsets.forEach((v, i) => offsets[i] = v);
+  render();
+});
+
+/* ---------- the moment: colour rushes back ---------- */
+const PALETTE = ['#e79a83','#efc28f','#f3dc96','#a9cbd8','#cdb3e0','#b7d4ae','#f4b8c2'];
+const toast = document.getElementById('toast');
+let toastT;
+
+function meetUp(i, card, evt){
+  const photo = card.querySelector('.photo');
+  const flood = card.querySelector('.flood');
+  const flash = card.querySelector('.flash');
+  const wasFaded = fadeFor(weeksFor(i)) > 0.05;
+
+  // haptic tap where supported
+  try { navigator.vibrate && navigator.vibrate([14, 40, 22]); } catch(e){}
+
+  // camera flash
+  flash.animate([{opacity:.0},{opacity:.85},{opacity:0}], {duration:520, easing:'ease-out'});
+
+  // colour floods in from the bottom centre (where your thumb is)
+  flood.animate(
+    [{clipPath:'circle(0% at 50% 105%)'},{clipPath:'circle(150% at 50% 105%)'}],
+    {duration: wasFaded ? 1100 : 600, easing:'cubic-bezier(.2,.8,.2,1)', fill:'forwards'}
+  ).onfinish = () => {
+    offsets[i] = -globalWeeks; // this group just met
+    render();
+    // let the base catch up before hiding the flood layer
+    setTimeout(() => flood.getAnimations().forEach(a => a.cancel()), 60);
+  };
+
+  // little pop of the whole card
+  card.animate(
+    [{transform:`rotate(${ROT[i]}deg) scale(1)`},{transform:`rotate(0deg) scale(1.05)`},{transform:`rotate(${ROT[i]}deg) scale(1)`}],
+    {duration:700, easing:'cubic-bezier(.3,1.6,.5,1)'}
+  );
+
+  // confetti burst from the button
+  const btn = evt.currentTarget.getBoundingClientRect();
+  const cr = card.getBoundingClientRect();
+  const ox = btn.left + btn.width/2 - cr.left, oy = btn.top + btn.height/2 - cr.top;
+  for (let k = 0; k < 22; k++){
+    const c = document.createElement('span');
+    c.className = 'confetti';
+    c.style.left = ox + 'px'; c.style.top = oy + 'px';
+    c.style.background = PALETTE[k % PALETTE.length];
+    if (k % 3 === 0) c.style.borderRadius = '50%';
+    card.appendChild(c);
+    const a = (Math.PI * 2 * k) / 22 + Math.random() * .4;
+    const d = 50 + Math.random() * 70;
+    c.animate([
+      {transform:'translate(-50%,-50%) rotate(0) scale(1)', opacity:1},
+      {transform:`translate(calc(-50% + ${Math.cos(a)*d}px), calc(-50% + ${Math.sin(a)*d - 30}px)) rotate(${Math.random()*540}deg) scale(.6)`, opacity:0}
+    ], {duration:900 + Math.random()*400, easing:'cubic-bezier(.1,.8,.3,1)'}).onfinish = () => c.remove();
+  }
+
+  toast.textContent = wasFaded ? "colour's back ✦" : 'another one for the wall ✦';
+  toast.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => toast.classList.remove('show'), 1600);
+}
+
+render();
+</script>
+</body>
+</html>
